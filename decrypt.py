@@ -4,10 +4,6 @@ from scipy.fft import rfft, rfftfreq
 import threading
 
 def play_note(note):
-    """
-    Generate and play a tone corresponding to the given cipher.
-    """
-    # Map ciphers to frequencies (in Hz) for all letters A to Z
     note_frequencies = {
         "[A]": 440.0,   # A4
         "[AA]": 466.16, # A#4/Bb4
@@ -84,7 +80,7 @@ def encrypt():
         for key in second_letters:
             if first_enc[i:i+len(key)] == key:
                 second_enc += second_letters[key]
-                play_note(key)  # Play the piano note for the matched cipher
+                play_note(key) 
                 i += len(key)
                 match_found = True
                 break
@@ -96,25 +92,17 @@ def encrypt():
 
 
 def record_audio(duration=10, sample_rate=44100):
-    """
-    Record audio for a given duration and return the recorded waveform.
-    """
     print("Recording... Play the notes now.")
     audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='float64')
-    sd.wait()  # Wait until recording is finished
+    sd.wait()
     print("Recording complete.")
     return audio.flatten(), sample_rate
 
 def analyze_frequency(audio, sample_rate):
-    """
-    Analyze the dominant frequency in the recorded audio.
-    """
-    # Perform Fourier Transform to get frequency components
     N = len(audio)
     yf = rfft(audio)
     xf = rfftfreq(N, 1 / sample_rate)
 
-    # Find the frequency with the highest magnitude
     idx = np.argmax(np.abs(yf))
     dominant_frequency = xf[idx]
     return dominant_frequency
@@ -127,7 +115,7 @@ def segment_audio(audio, sample_rate, note_duration=0.3):
     return [audio[i:i + segment_length] for i in range(0, len(audio), segment_length)]
 
 def break_cipher():
-    
+
     note_frequencies = {
         "[A]": 440.0,   # A4
         "[AA]": 466.16, # A#4/Bb4
@@ -157,22 +145,18 @@ def break_cipher():
         "[II]": 1864.66, # A#6/Bb6
     }
 
-    # Record audio manually
     audio, sample_rate = record_audio_manually()
 
-    # Segment the audio into chunks
-    note_duration = 0.5  # Match the note duration in encrypt.py
+    note_duration = 0.5
     segments = segment_audio(audio, sample_rate, note_duration)
 
-    # Analyze each segment and reconstruct the message
     reconstructed_message = ""
     for segment in segments:
-        if len(segment) == 0:  # Skip empty segments
+        if len(segment) == 0:
             continue
         dominant_frequency = analyze_frequency(segment, sample_rate)
         print(f"Detected frequency: {dominant_frequency} Hz")
 
-        # Find the closest matching cipher
         closest_note = None
         min_difference = float('inf')
         for note, freq in note_frequencies.items():
@@ -181,7 +165,7 @@ def break_cipher():
                 min_difference = difference
                 closest_note = note
 
-        if closest_note and min_difference < 10:  # Add a tolerance range
+        if closest_note and min_difference < 10:
             print(f"Detected cipher: {closest_note}")
             reconstructed_message += closest_note
         else:
@@ -189,7 +173,6 @@ def break_cipher():
 
     print(f"Reconstructed message: {reconstructed_message}")
 
-    # Decrypt the reconstructed message
     decryption = {
         "[A]": "A", "[AA]": "B", "[AAA]": "C", "[B]": "D", "[BB]": "E", "[BBB]": "F",
         "[C]": "G", "[CC]": "H", "[CCC]": "I", "[D]": "J", "[DD]": "K", "[DDD]": "L",
@@ -199,12 +182,12 @@ def break_cipher():
     }
 
     msg = ""
-    temp = ""  # Temporary variable to store the current cipher
+    temp = ""
     for char in reconstructed_message:
-        temp += char  # Build the cipher string one character at a time
-        if temp in decryption:  # Check if the full cipher exists in the dictionary
-            msg += decryption[temp]  # Add the corresponding plaintext letter to the message
-            temp = ""  # Reset the temporary variable for the next cipher
+        temp += char
+        if temp in decryption: 
+            msg += decryption[temp]
+            temp = ""
 
     print(f"Decrypted message: {msg}")
 
@@ -224,15 +207,13 @@ def record_audio_manually(sample_rate=44100):
             print(status)
         audio_data.append(indata.copy())
 
-    # Start the recording stream
     with sd.InputStream(samplerate=sample_rate, channels=1, callback=callback):
         try:
             while recording:
-                sd.sleep(100)  # Keep the stream alive
+                sd.sleep(100)
         except KeyboardInterrupt:
             print("\nRecording stopped.")
 
-    # Combine all recorded chunks into a single array
     audio = np.concatenate(audio_data, axis=0).flatten()
     return audio, sample_rate
 

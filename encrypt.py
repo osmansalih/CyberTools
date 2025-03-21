@@ -3,9 +3,6 @@ import sounddevice as sd
 from scipy.fft import rfft, rfftfreq
 
 def play_note(note):
-    """
-    Generate and play a tone corresponding to the given cipher.
-    """
     note_frequencies = {
         "[A]": 440.0,   # A4
         "[AA]": 466.16, # A#4/Bb4
@@ -82,7 +79,7 @@ def encrypt():
         for key in second_letters:
             if first_enc[i:i+len(key)] == key:
                 second_enc += second_letters[key]
-                play_note(key)  # Play the piano note for the matched cipher
+                play_note(key) 
                 i += len(key)
                 match_found = True
                 break
