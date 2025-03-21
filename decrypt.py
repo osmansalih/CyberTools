@@ -45,7 +45,7 @@ def play_note(note):
         sd.wait()
 
 
-def encrypt():
+def enc():
     message = input("Enter the message to encrypt: ")
 
     letters = {
@@ -114,7 +114,7 @@ def segment_audio(audio, sample_rate, note_duration=0.3):
     segment_length = int(note_duration * sample_rate)
     return [audio[i:i + segment_length] for i in range(0, len(audio), segment_length)]
 
-def break_cipher():
+def decrypt():
 
     note_frequencies = {
         "[A]": 440.0,   # A4
@@ -218,4 +218,4 @@ def record_audio_manually(sample_rate=44100):
     return audio, sample_rate
 
 if __name__ == "__main__":
-    break_cipher()
+    decrypt()
